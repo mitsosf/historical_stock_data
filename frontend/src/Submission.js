@@ -1,13 +1,31 @@
 import * as React from "react";
 import 'antd/dist/antd.css';
-import {Form, Icon, Input, Button, DatePicker, Row, Col, Layout, Card} from "antd";
+import {Form, Input, Button, DatePicker, Row, Col, Layout, Card} from "antd";
+import SubmissionApi from "./api";
 
 const {Content} = Layout;
 
 class Submission extends React.Component {
-    state = {
-        endDateEnabled: false
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            endDateEnabled: false,
+            symbols: null
+        };
+    }
+
+    componentDidMount() {
+        //Perform API calls here
+        SubmissionApi.getSymbols().then((res) => {
+            this.setState({
+                symbols: res.data
+            }, ()=>{
+                console.log(this.state.symbols)
+            })
+        });
     };
+
 
     handleSubmit = (event) => {
 
@@ -35,7 +53,7 @@ class Submission extends React.Component {
                     <Card style={{width: 300}}>
                         <Form onSubmit={this.handleSubmit} className="login-form">
                             <Row>
-                                <Form.Item label='Symbol'>
+                                <Form.Item label='Company Symbol'>
                                     {getFieldDecorator('symbol', {
                                         rules: [
                                             {
@@ -45,7 +63,7 @@ class Submission extends React.Component {
                                         ],
                                     })(
                                         <Input
-                                            placeholder="Symbol eg. TSLA"
+                                            placeholder="eg. TSLA"
                                             onChange={this.onSymbolChange}
                                         />
                                     )}
