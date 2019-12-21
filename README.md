@@ -4,6 +4,6 @@ This app takes some stock data as input (Stock name, dates and user email) and o
 Been having some issues while receiving recent data, I think the endpoint does not allow me to get the latest data.
 
 TODOs:
-Organise the frontend code a bit better
-Implement the email functionality, ideally in a queue
+Organise the frontend code a bit better, 
+Implement the email functionality, ideally in a queue, 
 General code cleanup
