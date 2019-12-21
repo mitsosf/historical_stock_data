@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import Submission from "./Submission";
+import Application from "./Application";
 
 function App() {
   return (
     <div className="App">
       <header className="container">
-          <Submission/>
+          <Application/>
       </header>
     </div>
   );

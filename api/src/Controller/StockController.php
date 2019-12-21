@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,6 +30,48 @@ class StockController extends AbstractController
         }
 
         $response = new Response(json_encode($symbols), Response::HTTP_OK, ['content-type' => 'application/json']);
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        return $response;
+    }
+
+    /**
+     * @Route("/data", name="stock_data", methods={"GET", "OPTIONS"})
+     * @param Request $request
+     * @return Response|void
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getStockData(Request $request)
+    {
+        $url = 'https://www.quandl.com/api/v3/datasets/WIKI/'.$request->get('symbol').'.csv?api_key='.$_ENV['QUANDL_API_KEY'].'&order=asc&start_date='.$request->get('startDate').'&end_date='.$request->get('endDate');
+        $client = HttpClient::create();
+        $csv = $client->request('GET', $url)->getContent();
+        //$csv = str_getcsv($client->request('GET', $url)->getContent());
+        $csv = explode("\n", $csv);
+        array_shift($csv);
+        array_pop($csv);
+        $data = array();
+
+        foreach ($csv as $line) {
+            $temp = array();
+            $row = explode(',', $line);
+
+
+            array_push($temp, intval(strtotime($row[0]) . '000')); //Converting to timestamp for chart
+            array_push($temp, round(floatval($row[1]), 2));
+            array_push($temp, round(floatval($row[2]), 2));
+            array_push($temp, round(floatval($row[3]), 2));
+            array_push($temp, round(floatval($row[4]), 2));
+            array_push($temp, intval($row[5]));
+
+            array_push($data, $temp);
+        }
+
+        //TODO Send email to user using $request->get('email'), ideally placing this process in an async queue
+
+        $response = new Response(json_encode($data), Response::HTTP_OK, ['content-type' => 'application/json']);
         $response->headers->set('Access-Control-Allow-Origin', '*');
         return $response;
     }
